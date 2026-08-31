@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página Origen - Captura de Información</title>
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-color: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --error-bg: #fee2e2;
+      --error-text: #991b1b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      width: 100%;
+      max-width: 480px;
+      padding: 32px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button:disabled {
+      background-color: #93c5fd;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      margin-top: 20px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .status-message.success {
+      display: block;
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid #bbf7d0;
+    }
+
+    .status-message.error {
+      display: block;
+      background-color: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid #fecaca;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Página Origen</h1>
+    <p class="subtitle">Recopilador de Información Maps Beta</p>
+
+    <form id="origenForm">
+      <div class="form-group">
+        <label for="texto1">Texto 1</label>
+        <input type="text" id="texto1" name="texto1" placeholder="Ingrese el primer texto" required />
+      </div>
+
+      <div class="form-group">
+        <label for="texto2">Texto 2</label>
+        <input type="text" id="texto2" name="texto2" placeholder="Ingrese el segundo texto" required />
+      </div>
+
+      <button type="submit" id="submitBtn">Enviar Información</button>
+    </form>
+
+    <div id="statusMessage" class="status-message"></div>
+  </div>
+
+  <script>
+    /**
+     * Script ejecutable en el navegador para la captura y envío de datos.
+     * Captura el evento 'submit' del formulario y realiza una petición POST en formato JSON
+     * a la pasarela externa especificada: https://webpasarelahook-beta.vercel.app/api/v1/procesar
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('origenForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusMessage = document.getElementById('statusMessage');
+
+      const PASARELA_URL = 'https://webpasarelahook-beta.vercel.app/api/v1/procesar';
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        // Obtener valores de los campos de entrada
+        const texto1 = document.getElementById('texto1').value.trim();
+        const texto2 = document.getElementById('texto2').value.trim();
+
+        // Ocultar mensaje previo y deshabilitar botón durante el envío
+        statusMessage.className = 'status-message';
+        statusMessage.style.display = 'none';
+        statusMessage.textContent = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+
+        try {
+          // Petición POST en formato JSON a la pasarela externa
+          const response = await fetch(PASARELA_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              texto1: texto1,
+              texto2: texto2
+            })
+          });
+
+          const data = await response.json().catch(() => ({}));
+
+          if (response.ok) {
+            // Manejo visual de respuesta exitosa
+            statusMessage.textContent = data.message || '¡Información enviada exitosamente a la pasarela!';
+            statusMessage.classList.add('success');
+            form.reset();
+          } else {
+            // Manejo visual de error retornado por la API
+            const errorText = data.error || data.message || `Error del servidor (${response.status})`;
+            statusMessage.textContent = `Error al procesar: ${errorText}`;
+            statusMessage.classList.add('error');
+          }
+        } catch (error) {
+          // Manejo visual de errores de red o conexión
+          statusMessage.textContent = `Error de conexión: ${error.message || 'No se pudo contactar con la pasarela.'}`;
+          statusMessage.classList.add('error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Enviar Información';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

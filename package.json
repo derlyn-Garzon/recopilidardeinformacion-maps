@@ -1,0 +1,15 @@
+{
+  "name": "pagina-origen",
+  "version": "1.0.0",
+  "description": "Aplicación Página Origen - Cliente Formulario y Backend Receptor de Webhooks",
+  "main": "origen.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node origen.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
