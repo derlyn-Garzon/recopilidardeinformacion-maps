@@ -195,6 +195,9 @@
           });
 
           const data = await response.json().catch(() => ({}));
+          console.log('>>> Respuesta recibida de la Pasarela:', data);
+          console.log('>>> Estado:', data.status);
+          console.log('>>> Mensaje:', data.mensaje);
 
           if (response.ok) {
             // Manejo visual de respuesta exitosa
